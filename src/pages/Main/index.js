@@ -5,21 +5,17 @@ import {View} from 'react-native';
 import Search from "../../components/Search";
 import Directions from "../../components/Directions";
 import markerImage from '../../assets/marker.png';
-import {
-  Back,
-  LocationBox,
-  LocationText,
-  LocationTimeBox,
-  LocationTimeText,
-  LocationTimeTextSmall
-} from "./styles";
+import Geocoder from "react-native-geocoding";
+import { Back, LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall } from "./styles";
 
+Geocoder.init("");
 
 function Main() {
 
   const [currentRegion, setCurrentRegion] = useState(null);
   const [currentDestination, setCurrentDestination] = useState(null);
   const [currentDuration, setCurrentDuration ] = useState("");
+  const [currentLocation, setCurrentLocation] = useState("");
   const mapView = useRef(null);
 
 
@@ -32,17 +28,21 @@ function Main() {
           enableHighAccuracy: true,
           maximumAge: 1000
         });
-
         const {latitude, longitude} = coords;
-
         setCurrentRegion({
           latitude,
           longitude,
           latitudeDelta: 0.0143,
           longitudeDelta: 0.0134,
-        })
+        });
+        address(latitude, longitude);
       }
+    }
+    async function address(latitude, longitude){
 
+      const response = await Geocoder.from({latitude, longitude})
+      const address = response.results[0].formatted_address;
+      setCurrentLocation(address.substring(0, address.indexOf(",")));
     }
 
     loadInitialPosition();
@@ -75,15 +75,13 @@ function Main() {
       showsUserLocation={true}
       loadingEnabled={true}
       ref={mapView}>
-
-      {currentDestination && (
+      { currentDestination && (
         <>
           <Directions
             origin={currentRegion}
             destination={currentDestination}
             onReady={result => {
               setCurrentDuration( Math.floor(result.duration));
-              console.log("currentDuration", currentDuration );
               mapView.current.fitToCoordinates(result.coordinates, {
                 edgePadding: {
                   right: 80,
@@ -94,11 +92,7 @@ function Main() {
               });
             }}
           />
-          <Marker
-            coordinate={currentDestination}
-
-            image={markerImage}
-          >
+          <Marker coordinate={currentDestination} image={markerImage}>
             <LocationBox>
               <LocationText>{currentDestination.title}</LocationText>
             </LocationBox>
@@ -109,12 +103,11 @@ function Main() {
                 <LocationTimeText>{currentDuration}</LocationTimeText>
                 <LocationTimeTextSmall>MIN</LocationTimeTextSmall>
               </LocationTimeBox>
-              <LocationText>Felipe Cortez, 867</LocationText>
+              <LocationText>{currentLocation}</LocationText>
             </LocationBox>
           </Marker>
         </>
       )}
-
     </MapView>
     <Search onLocationSelected={handleLocationSelected}/>
   </View>
