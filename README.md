@@ -6,7 +6,7 @@
 <br>
 
 <p align="center">
-  <img alt="Frontend" src="./image.gif" width="50%" style="padding: 10px">
+  <img alt="Frontend" src="./image-readme.gif" width="50%" style="padding: 10px">
 </p>
 
 ## :rocket: Tecnologias
