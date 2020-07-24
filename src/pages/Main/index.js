@@ -1,12 +1,14 @@
 import React, {useEffect, useState, useRef} from 'react';
 import MapView, {Marker} from 'react-native-maps';
 import {requestPermissionsAsync, getCurrentPositionAsync} from 'expo-location';
-import {View} from 'react-native';
+import {View, Image} from 'react-native';
 import Search from "../../components/Search";
 import Directions from "../../components/Directions";
+import Details from "../../components/Details";
 import markerImage from '../../assets/marker.png';
 import Geocoder from "react-native-geocoding";
 import { Back, LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall } from "./styles";
+import backImage from "../../assets/back.png";
 
 Geocoder.init("");
 
@@ -32,8 +34,8 @@ function Main() {
         setCurrentRegion({
           latitude,
           longitude,
-          latitudeDelta: 0.0143,
-          longitudeDelta: 0.0134,
+          latitudeDelta: 0.0043,
+          longitudeDelta: 0.0034,
         });
         address(latitude, longitude);
       }
@@ -51,7 +53,9 @@ function Main() {
   if (!currentRegion) {
     return null;
   }
-
+  async function handleBack() {
+    setCurrentDestination( null );
+  }
   async function handleLocationSelected(data, {geometry}) {
     const {
       location: {
@@ -109,7 +113,16 @@ function Main() {
         </>
       )}
     </MapView>
-    <Search onLocationSelected={handleLocationSelected}/>
+    { currentDestination ? (
+      <>
+        <Back onPress={handleBack}>
+          <Image source={backImage} />
+        </Back>
+        <Details />
+      </>
+    ) : (
+      <Search onLocationSelected={handleLocationSelected}/>
+    )}
   </View>
 }
 
