@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import MapView from 'react-native-maps';
 import {requestPermissionsAsync, getCurrentPositionAsync} from 'expo-location';
 import {View} from 'react-native';
@@ -9,6 +9,9 @@ function Main() {
 
   const [currentRegion, setCurrentRegion] = useState(null);
   const [currentDestination, setCurrentDestination] = useState(null);
+  const [currentDuration, setCurrentDuration] = useState(null);
+  const [currentResult, setCurrentResult] = useState(null);
+    const mapView = useRef(null);
 
 
   useEffect(() => {
@@ -54,18 +57,33 @@ function Main() {
     });
   }
 
+
+
   return <View style={{flex: 1}}>
+
     <MapView
       style={{flex: 1}}
       initialRegion={currentRegion}
       showsUserLocation={true}
-      loadingEnabled={true} >
+      loadingEnabled={true}
+      ref={mapView} >
 
       {currentDestination && (
         <Directions
           origin={currentRegion}
           destination={currentDestination}
-          onReady={ () => {}}
+          onReady={result => {
+            setCurrentDuration({ currentDuration: Math.floor(result.currentDuration) });
+            setCurrentResult({currentResult: result});
+            mapView.current.fitToCoordinates(result.coordinates, {
+              edgePadding: {
+                right: 50,
+                left: 50,
+                top: 50,
+                bottom: 350
+              }
+            });
+          }}
         />
       )}
 
